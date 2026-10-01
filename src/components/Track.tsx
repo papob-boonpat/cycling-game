@@ -7,7 +7,6 @@ interface TrackProps {
 
 export default function Track({ getSnapshot }: TrackProps) {
   const roadRef = useRef<HTMLDivElement>(null);
-  const bannerRef = useRef<HTMLDivElement>(null);
   const hillsRef = useRef<HTMLDivElement>(null);
   const windRef = useRef<HTMLDivElement>(null);
 
@@ -34,11 +33,6 @@ export default function Track({ getSnapshot }: TrackProps) {
           const opacity = Math.min(1, Math.max(0, (state.v - 5) / 10));
           windRef.current.style.opacity = opacity.toString();
         }
-        
-        if (bannerRef.current) {
-          const bannerPos = (TRACK_LENGTH - state.x) * pixelsPerMeter;
-          bannerRef.current.style.transform = `translateX(calc(${bannerPos}px + 25vw + 64px))`;
-        }
   
         frameId = requestAnimationFrame(update);
       };
@@ -52,13 +46,13 @@ export default function Track({ getSnapshot }: TrackProps) {
         {/* Background / Hills with parallax */}
         <div 
           ref={hillsRef}
-          className="absolute bottom-[45%] w-full h-32 bg-[url('/sprites/hills.svg')] bg-repeat-x opacity-60" 
+          className="absolute bottom-[70%] w-full h-32 bg-[url('/sprites/hills.svg')] bg-repeat-x opacity-60" 
         />
         
         {/* Road */}
         <div 
           ref={roadRef}
-          className="absolute bottom-0 w-full h-[45%] bg-gray-700 border-t-8 border-gray-400 shadow-[inset_0_20px_20px_rgba(0,0,0,0.3)]"
+          className="absolute bottom-[45%] w-full h-[25%] bg-gray-700 border-t-8 border-gray-400 shadow-[inset_0_20px_20px_rgba(0,0,0,0.3)]"
           style={{
             backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 150px, rgba(255,255,255,0.8) 150px, rgba(255,255,255,0.8) 200px)',
             backgroundSize: '200px 6px',
@@ -69,9 +63,9 @@ export default function Track({ getSnapshot }: TrackProps) {
         
         {/* Finish Line on Ground */}
         <div 
-          ref={bannerRef}
-          className="absolute bottom-0 h-[45%] w-16 z-10 opacity-90 border-x-4 border-white"
+          className="absolute bottom-[45%] h-[25%] w-8 sm:w-16 z-10 opacity-90 border-x-4 border-white"
           style={{
+            left: '85%',
             backgroundImage: 'conic-gradient(#fff 90deg, #000 90deg 180deg, #fff 180deg 270deg, #000 270deg)',
             backgroundSize: '32px 32px'
           }}

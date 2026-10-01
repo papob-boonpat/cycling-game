@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRaceEngine, RaceResult } from '@/lib/useRaceEngine';
 import Track from './Track';
 import Cyclist from './Cyclist';
-import ChainringButton from './ChainringButton';
+import Pedals from './Pedals';
 import Hud from './Hud';
 
 export default function Game() {
   const [name, setName] = useState('');
   const [submitState, setSubmitState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [finalResult, setFinalResult] = useState<RaceResult | null>(null);
+  const [countdown, setCountdown] = useState(3);
 
   const handleFinish = async (result: RaceResult) => {
     setFinalResult(result);
@@ -36,6 +37,16 @@ export default function Game() {
   };
 
   const { start, tap, phase, getSnapshot } = useRaceEngine(handleFinish);
+
+  useEffect(() => {
+    if (phase === 'countdown') {
+      setCountdown(3);
+      const id1 = setTimeout(() => setCountdown(2), 1000);
+      const id2 = setTimeout(() => setCountdown(1), 2000);
+      const id3 = setTimeout(() => setCountdown(0), 3000);
+      return () => { clearTimeout(id1); clearTimeout(id2); clearTimeout(id3); };
+    }
+  }, [phase]);
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-sky-200 touch-none">
@@ -78,14 +89,17 @@ export default function Game() {
       )}
 
       {phase === 'countdown' && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="text-8xl font-black text-white drop-shadow-2xl animate-bounce">
-            ไป!
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-50 bg-black/40 px-4">
+          <div key={countdown} className="text-[8rem] sm:text-[12rem] font-black text-white drop-shadow-[0_8px_8px_rgba(0,0,0,0.8)] animate-ping mb-8 sm:mb-12">
+            {countdown > 0 ? countdown : 'ไป!'}
+          </div>
+          <div className="bg-blue-600 text-white text-lg sm:text-3xl font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.8)] border-2 sm:border-4 border-white animate-pulse text-center">
+            💡 สลับปุ่ม ซ้าย-ขวา รัวๆ เพื่อปั่น! (← / →)
           </div>
         </div>
       )}
 
-      <ChainringButton phase={phase} onTap={tap} getSnapshot={getSnapshot} />
+      <Pedals phase={phase} onTap={tap} getSnapshot={getSnapshot} />
 
       {phase === 'finished' && (
         <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4 z-50">

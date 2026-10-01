@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { GameState } from '@/lib/physics';
+import { GameState, TRACK_LENGTH } from '@/lib/physics';
 
 interface CyclistProps {
   getSnapshot: () => GameState;
 }
 
 export default function Cyclist({ getSnapshot }: CyclistProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const cyclistRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,6 +19,12 @@ export default function Cyclist({ getSnapshot }: CyclistProps) {
         cyclistRef.current.style.transform = `rotate(-${lean}deg)`;
         cyclistRef.current.style.transformOrigin = `bottom center`;
       }
+      if (containerRef.current) {
+        // Move across the screen as progress
+        const percent = Math.min(1, Math.max(0, state.x / TRACK_LENGTH));
+        const leftPos = 5 + (percent * 75); // moves from 5% to 80%
+        containerRef.current.style.left = `${leftPos}%`;
+      }
       frameId = requestAnimationFrame(update);
     };
 
@@ -26,7 +33,7 @@ export default function Cyclist({ getSnapshot }: CyclistProps) {
   }, [getSnapshot]);
 
   return (
-    <div className="absolute bottom-[30%] left-1/4 w-32 h-32 pointer-events-none">
+    <div ref={containerRef} className="absolute bottom-[55%] w-20 h-20 sm:w-32 sm:h-32 pointer-events-none z-20" style={{ left: '5%' }}>
       <div 
         ref={cyclistRef}
         className="w-full h-full bg-[url('/sprites/cyclist.svg')] bg-contain bg-no-repeat bg-bottom"

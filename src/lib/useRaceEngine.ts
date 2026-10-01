@@ -19,6 +19,7 @@ export function useRaceEngine(onFinish: (result: RaceResult) => void) {
   const startTimeRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const lastTapTimeRef = useRef<number>(0);
+  const lastPedalRef = useRef<'left' | 'right' | null>(null);
   const TAP_COOLDOWN = 60;
   
   const updatePhase = (newPhase: RacePhase) => {
@@ -67,18 +68,23 @@ export function useRaceEngine(onFinish: (result: RaceResult) => void) {
       startTimeRef.current = now;
       lastTimeRef.current = now;
       lastTapTimeRef.current = 0;
+      lastPedalRef.current = null;
       requestAnimationFrame(loopRef.current!);
-    }, 3000);
+    }, 4000);
   }, []);
 
-  const tap = useCallback(() => {
+  const tap = useCallback((pedal: 'left' | 'right') => {
     if (phaseRef.current !== 'racing') return;
+    
+    // Enforce alternating pedals
+    if (lastPedalRef.current === pedal) return;
     
     const now = performance.now();
     if (now - lastTapTimeRef.current > TAP_COOLDOWN) {
       tapsRef.current++;
       totalTapsRef.current++;
       lastTapTimeRef.current = now;
+      lastPedalRef.current = pedal;
     }
   }, []);
 
