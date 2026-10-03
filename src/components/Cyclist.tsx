@@ -33,10 +33,10 @@ export default function Cyclist({ getSnapshot }: CyclistProps) {
   }, [getSnapshot]);
 
   return (
-    <div ref={containerRef} className="absolute bottom-[55%] w-20 h-20 sm:w-32 sm:h-32 pointer-events-none z-20" style={{ left: '5%' }}>
+    <div ref={containerRef} className="absolute bottom-[55%] w-40 h-40 sm:w-64 sm:h-64 pointer-events-none z-20" style={{ left: '5%' }}>
       <div 
         ref={cyclistRef}
-        className="w-full h-full bg-[url('/sprites/cyclist.svg')] bg-contain bg-no-repeat bg-bottom"
+        className="w-full h-full bg-[url('/sprites/image.png')] bg-contain bg-no-repeat bg-bottom"
       />
     </div>
   );
