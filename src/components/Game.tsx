@@ -6,6 +6,8 @@ import Track from './Track';
 import Cyclist from './Cyclist';
 import Pedals from './Pedals';
 import Hud from './Hud';
+import Lobby from './Lobby';
+import { useLobby } from '@/lib/useLobby';
 
 export default function Game() {
   const [name, setName] = useState('');
@@ -37,6 +39,7 @@ export default function Game() {
   };
 
   const { start, tap, phase, getSnapshot } = useRaceEngine(handleFinish);
+  const lobby = useLobby(phase === 'idle');
 
   useEffect(() => {
     if (phase === 'countdown') {
@@ -55,37 +58,16 @@ export default function Game() {
       <Hud phase={phase} getSnapshot={getSnapshot} />
       
       {phase === 'idle' && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
-            <h1 className="text-3xl font-bold mb-6 text-gray-800">Cycling Tap Game</h1>
-            <div className="mb-4 text-left">
-              <label className="block text-gray-700 font-medium mb-2">ชื่อผู้เล่น</label>
-              <input 
-                type="text" 
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="กรอกชื่อของคุณ"
-                className="w-full border border-gray-300 rounded-lg p-3 text-lg text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
-                maxLength={20}
-              />
-            </div>
-            <button 
-              onClick={() => {
-                if (!name.trim()) setName('Anonymous');
-                start();
-              }}
-              onTouchStart={(e) => {
-                // Also handle touch start for instant mobile response
-                e.preventDefault();
-                if (!name.trim()) setName('Anonymous');
-                start();
-              }}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg text-xl transition-colors"
-            >
-              เริ่ม
-            </button>
-          </div>
-        </div>
+        <Lobby
+          name={name}
+          onNameChange={setName}
+          raceOpen={lobby.raceOpen}
+          connected={lobby.connected}
+          onStart={() => {
+            if (!name.trim()) setName('Anonymous');
+            start();
+          }}
+        />
       )}
 
       {phase === 'countdown' && (

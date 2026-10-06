@@ -16,3 +16,10 @@ model Score {
 
   @@index([timeMs])
 }
+
+model GameSetting {
+  id        String   @id @default("singleton")
+  raceOpen  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
