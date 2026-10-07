@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-const POLL_INTERVAL_MS = 2000;
+const POLL_INTERVAL_MS = 4000;
 
 export interface LobbyState {
   raceOpen: boolean;
@@ -14,7 +14,10 @@ export interface LobbyState {
  * race starts to stop polling.
  */
 export function useLobby(active: boolean): LobbyState {
-  const [state, setState] = useState<LobbyState>({ raceOpen: false, connected: false });
+  const [state, setState] = useState<LobbyState>({
+    raceOpen: false,
+    connected: false,
+  });
 
   useEffect(() => {
     if (!active) return;
@@ -23,14 +26,14 @@ export function useLobby(active: boolean): LobbyState {
 
     const poll = async () => {
       try {
-        const res = await fetch('/api/lobby', { cache: 'no-store' });
+        const res = await fetch("/api/lobby", { cache: "no-store" });
         if (!res.ok) throw new Error(`Lobby poll failed: ${res.status}`);
         const data = await res.json();
         if (cancelled) return;
         setState({ raceOpen: Boolean(data.raceOpen), connected: true });
       } catch (err) {
         console.error(err);
-        if (!cancelled) setState(prev => ({ ...prev, connected: false }));
+        if (!cancelled) setState((prev) => ({ ...prev, connected: false }));
       }
     };
 
