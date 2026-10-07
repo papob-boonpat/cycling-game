@@ -24,3 +24,8 @@ export async function listTop(limit: number = 20) {
     take: limit
   });
 }
+
+/** Wipes the whole scoreboard. Used by the admin reset to start a fresh game. */
+export async function clearScores() {
+  return prisma.score.deleteMany({});
+}

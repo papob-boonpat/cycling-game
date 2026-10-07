@@ -8,6 +8,8 @@ export default function AdminPanel() {
   const [raceOpen, setRaceOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmingReset, setConfirmingReset] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // Poll so the toggle reflects changes made from another device.
   useEffect(() => {
@@ -55,6 +57,24 @@ export default function AdminPanel() {
     }
   };
 
+  const resetGame = async () => {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await fetch('/api/admin/reset', { method: 'POST', cache: 'no-store' });
+      if (!res.ok) throw new Error('ล้างคะแนนไม่สำเร็จ');
+      const data = await res.json();
+      setRaceOpen(Boolean(data.raceOpen));
+      setConfirmingReset(false);
+      setNotice(`ล้างคะแนนแล้ว ${data.cleared} รายการ — เริ่มเกมใหม่`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 gap-8">
       <div className="text-center">
@@ -78,6 +98,49 @@ export default function AdminPanel() {
       >
         {raceOpen ? 'ปิดการแข่งขัน' : 'เปิดการแข่งขัน'}
       </button>
+
+      <div className="w-full max-w-md flex flex-col gap-2">
+        {confirmingReset ? (
+          <>
+            <div className="text-center text-sm font-bold text-red-700">
+              ล้างคะแนนทั้งหมดและเริ่มเกมใหม่? ไม่สามารถย้อนกลับได้
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={resetGame}
+                disabled={busy}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition-colors active:scale-95 disabled:opacity-60"
+              >
+                ยืนยันล้างคะแนน
+              </button>
+              <button
+                onClick={() => setConfirmingReset(false)}
+                disabled={busy}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-xl shadow transition-colors active:scale-95 disabled:opacity-60"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </>
+        ) : (
+          <button
+            onClick={() => {
+              setNotice(null);
+              setConfirmingReset(true);
+            }}
+            disabled={busy}
+            className="w-full border-2 border-red-300 bg-white hover:bg-red-50 text-red-700 font-bold py-3 rounded-xl shadow-sm transition-colors active:scale-95 disabled:opacity-60"
+          >
+            ล้างคะแนนทั้งหมด &amp; เริ่มเกมใหม่
+          </button>
+        )}
+      </div>
+
+      {notice && (
+        <div className="bg-green-50 border-2 border-green-200 text-green-800 rounded-lg p-3 text-sm max-w-md w-full text-center">
+          {notice}
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border-2 border-red-200 text-red-800 rounded-lg p-3 text-sm max-w-md w-full text-center">
